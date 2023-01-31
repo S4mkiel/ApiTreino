@@ -13,7 +13,7 @@ type User struct {
 	Name     string
 	Age      uint8
 	CompanyID uint `json:"companyid,omitempty" gorm:"ForeignKey:CompanyRefer"`
-	CompanyRefer Company `json:"comapnyrefer,omitempty" gorm:"ForeignKey:CompanyID;AssociationForeignKey:ID"`
+	CompanyRefer Company `json:"companyrefer,omitempty" gorm:"ForeignKey:CompanyID;AssociationForeignKey:ID"`
 }
 
 type Company struct {
@@ -23,7 +23,7 @@ type Company struct {
 }
 
 func main() {
-	db, err := gorm.Open("sqlite3", "test.db")
+	db, err := gorm.Open("sqlite3", "ApiTreino.db")
 	if err != nil {
 		log.Fatal("Error to open database",err)
 	}
@@ -33,7 +33,6 @@ func main() {
 	defer db.Close()
 
 	app := fiber.New()
-
 
 	app.Get("/users", func(c *fiber.Ctx) error {
 		var users []User
@@ -52,9 +51,34 @@ func main() {
 		if err := c.BodyParser(&user); err != nil {
 			return err
 		}
-		db.Create(&user)
+		if err :=db.Create(&user).Error; err != nil{
+			return err
+		}
 		return c.JSON(user)
 	})
+
+	app.Get("/companies", func(c *fiber.Ctx) error {
+		var companies []Company
+		db.Find(&companies)
+		return c.JSON(companies)
+	})
 	
+	app.Get("/companies/:id", func(c *fiber.Ctx) error {
+		var company Company
+		db.First(&company, c.Params("id"))
+		return c.JSON(company)
+	})
+	
+	app.Post("/companies", func(c *fiber.Ctx) error {
+		var company Company
+		if err := c.BodyParser(&company); err != nil {
+			return err
+		}
+		if err:= db.Create(&company).Error; err != nil{
+			return err
+		}
+		return c.JSON(company)
+	})
+
 	app.Listen(":3000")
 }
