@@ -2,23 +2,23 @@ package main
 
 import (
 	"log"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
 type User struct {
 	gorm.Model
-	Username string `json:"omitempty"`
+	Username string `json:"username,omitempty" gorm:"unique_index"`
 	Name     string
 	Age      uint8
-	CompanyID uint `json:"ForeignKey:CompanyRefer"`
-	CompanyRefer Company `json:"AssociationForeignKey:CompanyID"`
+	CompanyID uint `json:"companyid,omitempty" gorm:"ForeignKey:CompanyRefer"`
+	CompanyRefer Company `json:"comapnyrefer,omitempty" gorm:"ForeignKey:CompanyID;AssociationForeignKey:ID"`
 }
 
 type Company struct {
 	gorm.Model
-	Name    string `json:"omitempty"`
+	Name    string `json:"name,omitempty" gorm:"unique_index"`
 	Andress string
 }
 
@@ -35,26 +35,26 @@ func main() {
 	app := fiber.New()
 
 
-	app.Get("/users", func (c *fiber.Ctx){
-		var users User
+	app.Get("/users", func(c *fiber.Ctx) error {
+		var users []User
 		db.Find(&users)
-		c.JSON(users)
+		return c.JSON(users)
 	})
 
-	app.Get("/users/:id", func(c *fiber.Ctx){
-		id := c.Params("id")
-  	var user User
-  	db.First(&user, id)
-  	c.JSON(user)
+	app.Get("/users/:id", func(c *fiber.Ctx) error {
+		var user User
+		db.First(&user, c.Params("id"))
+		return c.JSON(user)
 	})
 
-	app.Post("/users", func (c *fiber.Ctx){
-		user := new(User)
-		if err := c.BodyParser(user); err != nil{
-			c.Status(503).Send(err)
-			return
-	}
+	app.Post("/users", func(c *fiber.Ctx) error {
+		var user User
+		if err := c.BodyParser(&user); err != nil {
+			return err
+		}
 		db.Create(&user)
-		c.JSON(user)
+		return c.JSON(user)
 	})
+	
+	app.Listen(":3000")
 }
