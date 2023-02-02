@@ -57,6 +57,26 @@ func main() {
 		return c.JSON(user)
 	})
 
+	app.Put("/users/:id", func(c *fiber.Ctx) error {
+		var user User
+		if err := c.BodyParser(&user); err != nil {
+			return err
+		}
+		if err := db.Model(&user).Updates(user).Error; err != nil{
+			return err
+		}
+		return c.JSON(user)
+	})
+
+	app.Delete("/users/:id", func(c *fiber.Ctx) error {
+		var user User
+		db.First(&user, c.Params("id"))
+		if err := db.Delete(&user).Error; err != nil{
+			return err
+		}
+		return c.JSON(user)
+	})
+
 	app.Get("/companies", func(c *fiber.Ctx) error {
 		var companies []Company
 		db.Find(&companies)
@@ -75,6 +95,26 @@ func main() {
 			return err
 		}
 		if err:= db.Create(&company).Error; err != nil{
+			return err
+		}
+		return c.JSON(company)
+	})
+
+	app.Put("/companies/:id", func(c *fiber.Ctx) error {
+		var company Company
+		if err := c.BodyParser(&company); err != nil {
+			return err
+		}
+		if err := db.Model(&company).Updates(company).Error; err != nil{
+			return err
+		}
+		return c.JSON(company)
+	})
+
+	app.Delete("/companies/:id", func(c *fiber.Ctx) error {
+		var company Company
+		db.First(&company, c.Params("id"))
+		if err := db.Delete(&company).Error; err != nil{
 			return err
 		}
 		return c.JSON(company)
