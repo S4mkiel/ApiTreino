@@ -33,19 +33,19 @@ func main() {
 	defer db.Close()
 
 	app := fiber.New()
-
+	//A rota "/users" retorna todos os usuários do banco de dados com a função "db.Find (&users)".
 	app.Get("/users", func(c *fiber.Ctx) error {
 		var users []User
 		db.Find(&users)
 		return c.JSON(users)
 	})
-
+  //A rota "/users/:id" retorna um usuário específico identificado pelo ID fornecido na URL (:id) com a função "db.First (&user, c.Params ("id"))".
 	app.Get("/users/:id", func(c *fiber.Ctx) error {
 		var user User
 		db.First(&user, c.Params("id"))
 		return c.JSON(user)
 	})
-
+	//A rota "/users" com método POST cria um novo usuário ao receber um corpo de solicitação HTTP com informações do usuário, parseado com "c.BodyParser (&user)", e salvo no banco de dados com "db.Create (&user)".
 	app.Post("/users", func(c *fiber.Ctx) error {
 		var user User
 		if err := c.BodyParser(&user); err != nil {
@@ -56,7 +56,7 @@ func main() {
 		}
 		return c.JSON(user)
 	})
-
+	//O método app.Put("/users/:id") atualiza um usuário específico identificado pelo ID fornecido na URL (:id). Ele lê os dados enviados pelo corpo da solicitação e os usa para atualizar o registro correspondente na base de dados usando o método Model(&user).Updates(user).
 	app.Put("/users/:id", func(c *fiber.Ctx) error {
 		var user User
 		if err := c.BodyParser(&user); err != nil {
@@ -67,7 +67,7 @@ func main() {
 		}
 		return c.JSON(user)
 	})
-
+	//O método app.Delete("/users/:id") exclui um usuário específico identificado pelo ID fornecido na URL (:id). Ele remove o registro correspondente da base de dados usando o método Delete(&user).
 	app.Delete("/users/:id", func(c *fiber.Ctx) error {
 		var user User
 		db.First(&user, c.Params("id"))
@@ -76,19 +76,19 @@ func main() {
 		}
 		return c.JSON(user)
 	})
-
+	//Referencia app.Get de User
 	app.Get("/companies", func(c *fiber.Ctx) error {
 		var companies []Company
 		db.Find(&companies)
 		return c.JSON(companies)
 	})
-	
+	//Referencia app.Get de User
 	app.Get("/companies/:id", func(c *fiber.Ctx) error {
 		var company Company
 		db.First(&company, c.Params("id"))
 		return c.JSON(company)
 	})
-	
+	//Referencia app.Post de User
 	app.Post("/companies", func(c *fiber.Ctx) error {
 		var company Company
 		if err := c.BodyParser(&company); err != nil {
@@ -99,7 +99,7 @@ func main() {
 		}
 		return c.JSON(company)
 	})
-
+	//Referencia app.Put de User
 	app.Put("/companies/:id", func(c *fiber.Ctx) error {
 		var company Company
 		if err := c.BodyParser(&company); err != nil {
@@ -110,7 +110,7 @@ func main() {
 		}
 		return c.JSON(company)
 	})
-
+	//Referencia app.Delete de User
 	app.Delete("/companies/:id", func(c *fiber.Ctx) error {
 		var company Company
 		db.First(&company, c.Params("id"))
